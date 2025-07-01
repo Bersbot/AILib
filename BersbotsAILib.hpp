@@ -4,76 +4,88 @@
 #include <random>
 #include <cmath>
 
-class Neuron {
+#include <stdexcept>
+
+class AIbot {
 public:
-    Neuron(int inputSize);
-    void setUseSigmoid(bool flag);
-    bool getUseSigmoid() const;
-    float forward(const std::vector<float>& input);
-    float AIloss(float y_pred, float y_true);
-    void train(const std::vector<float>& input, float y_pred, float y_true, float learning_rate);
+    AIbot(int inputSize, int outputSize, bool useSigmoid = true)
+        : inputSize(inputSize), outputSize(outputSize), useSigmoid(useSigmoid) 
+    {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+
+        weights.resize(outputSize, std::vector<float>(inputSize));
+        biases.resize(outputSize);
+
+        for (int i = 0; i < outputSize; ++i) {
+            for (int j = 0; j < inputSize; ++j) {
+                weights[i][j] = dist(gen);
+            }
+            biases[i] = dist(gen);
+        }
+    }
+
+    std::vector<float> forward(const std::vector<float>& input) const {
+        if (input.size() != inputSize) {
+            throw std::invalid_argument("Input size does not match");
+        }
+
+        std::vector<float> output(outputSize);
+        for (int i = 0; i < outputSize; ++i) {
+            float sum = biases[i];
+            for (int j = 0; j < inputSize; ++j) {
+                sum += weights[i][j] * input[j];
+            }
+            output[i] = useSigmoid ? sigmoid(sum) : sum;
+        }
+        return output;
+    }
+
+    void train(const std::vector<float>& input, const std::vector<float>& y_pred, const std::vector<float>& y_true, float learning_rate) {
+        if (y_pred.size() != outputSize || y_true.size() != outputSize) {
+            throw std::invalid_argument("Output size mismatch");
+        }
+
+        for (int i = 0; i < outputSize; ++i) {
+            float error = y_pred[i] - y_true[i];
+            float delta = useSigmoid ? error * sigmoidDerivative(y_pred[i]) : error;
+
+            for (int j = 0; j < inputSize; ++j) {
+                weights[i][j] -= learning_rate * delta * input[j];
+            }
+            biases[i] -= learning_rate * delta;
+        }
+    }
+
+    float AIloss(const std::vector<float>& y_pred, const std::vector<float>& y_true) const {
+        if (y_pred.size() != y_true.size()) {
+            throw std::invalid_argument("Loss: output size mismatch");
+        }
+        float sum = 0;
+        for (size_t i = 0; i < y_pred.size(); ++i) {
+            float diff = y_pred[i] - y_true[i];
+            sum += 0.5f * diff * diff;
+        }
+        return sum;
+    }
+
+    void setUseSigmoid(bool flag) {
+        useSigmoid = flag;
+    }
 
 private:
-    static float sigmoidDerivative(float sigmoid_x) {
-        return sigmoid_x * (1.0f - sigmoid_x);
-    }
+    int inputSize;
+    int outputSize;
+    bool useSigmoid;
+    std::vector<std::vector<float>> weights;
+    std::vector<float> biases;
+
     static float sigmoid(float x) {
         return 1.0f / (1.0f + std::exp(-x));
     }
-    std::vector<float> weights;
-    float bias = 0;
-    bool useSigmoid = 0;
+
+    static float sigmoidDerivative(float sigmoid_x) {
+        return sigmoid_x * (1.0f - sigmoid_x);
+    }
 };
-
-Neuron::Neuron(int inputSize){
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
-    for (int i = 0; i < inputSize; ++i) {
-        weights.push_back(dist(gen));
-    }
-    bias = dist(gen);
-}
-
-float Neuron::forward(const std::vector<float>& input) {
-    if (input.size() != weights.size()) {
-        throw std::invalid_argument("Input size does not match weights size");
-    }
-    float sum = bias;
-    for (size_t i = 0; i < weights.size(); ++i) {
-        sum += weights[i] * input[i];
-    }
-    if (useSigmoid) {
-        return sigmoid(sum);
-    } else {
-        return sum;
-    }
-}
-
-float Neuron::AIloss(float y_pred, float y_true) {
-    float diff = y_pred - y_true;
-    return 0.5f * diff * diff;
-}
-
-void Neuron::setUseSigmoid(bool flag) {useSigmoid = flag;}
-
-bool Neuron::getUseSigmoid() const {return useSigmoid;}
-
-void Neuron::train(const std::vector<float>& input, float y_pred, float y_true, float learning_rate) {
-    if (input.size() != weights.size()) {
-        throw std::invalid_argument("Input size does not match weights size");
-    }
-    float delta;
-
-    if (useSigmoid){
-        delta = (y_pred - y_true) * sigmoidDerivative(y_pred);
-    }else{
-        delta = y_pred - y_true;
-    }
-    
-    for (size_t i = 0; i < weights.size(); ++i) {
-        weights[i] -= learning_rate * delta * input[i];
-    }
-
-    bias -= learning_rate * delta;
-}
