@@ -1,19 +1,17 @@
+#include "NeuralNetwork.hpp"
 #include <iostream>
-#include "BersbotsAILib.hpp"
 
 int main() {
-    AIbot layer(3, 2); // 3 входа, 2 выхода
-    layer.setUseSigmoid(true);
+    // Создаём сеть с 3 входами, одним скрытым слоем из 5 нейронов и 2 выходами
+    NeuralNetwork net({3, 5, 2});
 
-    std::vector<float> input = {0.5, -0.3, 0.8};
-    std::vector<float> output = layer.forward(input);
+    std::vector<float> input = {1.0f, 0.5f, -1.2f};
+    std::vector<float> output = net.forward(input);
 
-    std::cout << "Output:\n";
-    for (float y : output) {
-        std::cout << y << " ";
+    for (float v : output) {
+        std::cout << v << " ";
     }
-    std::cout << "\n";
+    std::cout << std::endl;
 
-    std::vector<float> y_true = {1.0f, 0.0f};
-    layer.train(input, output, y_true, 0.1f);
+    return 0;
 }
