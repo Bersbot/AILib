@@ -23,8 +23,8 @@ public:
         }
     }
 
-    // Прямой проход слоя (активация сигмоида)
-    std::vector<float> forward(const std::vector<float>& input) {
+    // Прямой проход слоя с сигмоидной активацией
+    std::vector<float> forward(const std::vector<float>& input) const {
         if (input.size() != weights[0].size()) {
             throw std::invalid_argument("Input size does not match layer input size");
         }
@@ -46,14 +46,13 @@ private:
     std::vector<std::vector<float>> weights;
     std::vector<float> biases;
 
-    static float sigmoid(float x) {
+    static inline float sigmoid(float x) {
         return 1.0f / (1.0f + std::exp(-x));
     }
 };
 
 class NeuralNetwork {
 public:
-    // Конструктор принимает вектор с размерами слоев (входной, скрытые..., выходной)
     NeuralNetwork(const std::vector<int>& layersSizes) {
         if (layersSizes.size() < 2) {
             throw std::invalid_argument("Neural network must have at least 2 layers (input and output)");
@@ -64,12 +63,17 @@ public:
     }
 
     // Прямой проход по всем слоям
-    std::vector<float> forward(const std::vector<float>& input) {
+    std::vector<float> forward(const std::vector<float>& input) const {
         std::vector<float> out = input;
-        for (auto& layer : layers) {
+        for (const auto& layer : layers) {
             out = layer.forward(out);
         }
         return out;
+    }
+
+    // Заглушка для обучения — пока без реализации
+    void train(const std::vector<float>& input, const std::vector<float>& target, float learningRate) {
+        // Тут будет backpropagation
     }
 
 private:
