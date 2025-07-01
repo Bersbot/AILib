@@ -3,7 +3,6 @@
 #include <vector>
 #include <random>
 #include <cmath>
-#include <iostream>
 
 class Neuron {
 public:
