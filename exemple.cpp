@@ -2,42 +2,18 @@
 #include "BersbotsAILib.hpp"
 
 int main() {
-    Neuron n(2);  // нейрон с 2 входами
-    float learning_rate = 0.1f;
+    AIbot layer(3, 2); // 3 входа, 2 выхода
+    layer.setUseSigmoid(true);
 
-    // Обучающие данные для OR
-    std::vector<std::pair<std::vector<float>, float>> dataset = {
-        {{0, 0}, 0},
-        {{0, 1}, 1},
-        {{1, 0}, 1},
-        {{1, 1}, 1}
-    };
+    std::vector<float> input = {0.5, -0.3, 0.8};
+    std::vector<float> output = layer.forward(input);
 
-    // Цикл обучения
-    for (int epoch = 0; epoch < 1000; ++epoch) {
-        float total_loss = 0.0f;
-        for (auto& sample : dataset) {
-            auto input = sample.first;
-            float target = sample.second;
-
-            float output = n.forward(input);
-            float loss = n.AIloss(output, target);
-            total_loss += loss;
-
-            n.train(input, output, target, learning_rate);
-        }
-
-        if (epoch % 100 == 0) {
-            std::cout << "Epoch " << epoch << ", Loss = " << total_loss << std::endl;
-        }
+    std::cout << "Output:\n";
+    for (float y : output) {
+        std::cout << y << " ";
     }
+    std::cout << "\n";
 
-    // Проверим результат
-    std::cout << "Test after training:\n";
-    for (auto& sample : dataset) {
-        float out = n.forward(sample.first);
-        std::cout << sample.first[0] << " OR " << sample.first[1] << " = " << out << std::endl;
-    }
-
-    return 0;
+    std::vector<float> y_true = {1.0f, 0.0f};
+    layer.train(input, output, y_true, 0.1f);
 }
