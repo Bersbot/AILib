@@ -1,4 +1,5 @@
-include "BersbotsAILib.hpp"
+#include <iostream>
+#include "BersbotsAILib.hpp"
 
 int main() {
     Neuron n(2);  // нейрон с 2 входами
