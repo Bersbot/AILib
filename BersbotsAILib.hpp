@@ -73,7 +73,29 @@ public:
 
     // Заглушка для обучения — пока без реализации
     void train(const std::vector<float>& input, const std::vector<float>& target, float learningRate) {
-        // Тут будет backpropagation
+        if (target.size() != layers.back().getOutput().size()) {
+            throw std::invalid_argument("Target size must match output layer size");
+        }
+
+        // Прямой проход
+        std::vector<std::vector<float>> activations; // активации всех слоев (включая входной)
+        activations.push_back(input);
+        std::vector<float> out = input;
+        for (auto& layer : layers) {
+            out = layer.forward(out);
+            activations.push_back(out);
+        }
+
+        // Вычисляем ошибку выходного слоя
+        std::vector<float> delta(out.size());
+        for (size_t i = 0; i < out.size(); ++i) {
+            delta[i] = out[i] - target[i]; // градиент ошибки по выходу (MSE)
+        }
+
+        // Обратное распространение ошибки
+        for (int i = (int)layers.size() - 1; i >= 0; --i) {
+            delta = layers[i].backward(delta, activations[i], learningRate);
+        }
     }
 
 private:
