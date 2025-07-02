@@ -24,7 +24,7 @@ public:
     }
 
     // Прямой проход слоя с сигмоидной активацией
-    std::vector<float> forward(const std::vector<float>& input) const {
+    std::vector<float> forward(const std::vector<float>& input) {
         if (input.size() != weights[0].size()) {
             throw std::invalid_argument("Input size does not match layer input size");
         }
@@ -65,6 +65,9 @@ public:
     }
 
 private:
+    std::vector<float> lastInput;
+    std::vector<float> lastOutput;  // активации после sigmoid
+
     std::vector<std::vector<float>> weights;
     std::vector<float> biases;
 
