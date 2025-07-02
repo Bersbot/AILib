@@ -88,7 +88,7 @@ public:
     }
 
     // Прямой проход по всем слоям
-    std::vector<float> forward(const std::vector<float>& input) const {
+    std::vector<float> forward(const std::vector<float>& input) {
         std::vector<float> out = input;
         for (const auto& layer : layers) {
             out = layer.forward(out);
