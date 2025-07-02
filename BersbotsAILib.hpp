@@ -90,7 +90,7 @@ public:
     // Прямой проход по всем слоям
     std::vector<float> forward(const std::vector<float>& input) {
         std::vector<float> out = input;
-        for (const auto& layer : layers) {
+        for (auto& layer : layers) {
             out = layer.forward(out);
         }
         return out;
@@ -121,7 +121,46 @@ public:
         for (int i = (int)layers.size() - 1; i >= 0; --i) {
             delta = layers[i].backward(delta, activations[i], learningRate);
         }
+    }  
+    static float mse(const std::vector<float>& output, const std::vector<float>& target) {
+        float sum = 0.0f;
+        for (size_t i = 0; i < output.size(); ++i) {
+            float diff = output[i] - target[i];
+            sum += diff * diff;
+        }
+        return sum / output.size();
     }
+
+    void trainDataset(const std::vector<std::pair<std::vector<float>, std::vector<float>>>& dataset, int epochs, float learningRate) {
+        for (int epoch = 0; epoch < epochs; ++epoch) {
+            float totalLoss = 0.0f;
+            for (const auto& [input, target] : dataset) {
+                train(input, target, learningRate);
+                auto output = forward(input);
+                totalLoss += mse(output, target);
+            }
+            std::cout << "Epoch " << epoch << ", loss = " << totalLoss / dataset.size() << std::endl;
+        }
+    }
+
+    std::vector<float> predict(const std::vector<float>& input) {
+        return forward(input);
+    }
+
+    std::vector<float> softmax(const std::vector<float>& x) {
+        std::vector<float> result(x.size());
+        float maxVal = *std::max_element(x.begin(), x.end());
+        float sum = 0.0f;
+        for (size_t i = 0; i < x.size(); ++i) {
+            result[i] = std::exp(x[i] - maxVal);
+            sum += result[i];
+        }
+        for (float& v : result) v /= sum;
+        return result;
+    }
+
+
+
 
 private:
     std::vector<Layer> layers;
