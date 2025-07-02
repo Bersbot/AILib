@@ -63,7 +63,9 @@ public:
         }
         return deltaPrev;
     }
-
+    const std::vector<float>& getOutput() const {
+        return lastOutput;
+    }
 private:
     std::vector<float> lastInput;
     std::vector<float> lastOutput;  // активации после sigmoid
