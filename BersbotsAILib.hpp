@@ -23,60 +23,58 @@ public:
         }
     }
 
-    // Прямой проход слоя с сигмоидной активацией
     std::vector<float> forward(const std::vector<float>& input) {
         if (input.size() != weights[0].size()) {
             throw std::invalid_argument("Input size does not match layer input size");
         }
 
-        std::vector<float> output(weights.size(), 0.0f);
+        lastInput = input;
+        lastOutput.resize(weights.size());
 
         for (size_t i = 0; i < weights.size(); ++i) {
             float sum = biases[i];
             for (size_t j = 0; j < weights[i].size(); ++j) {
                 sum += weights[i][j] * input[j];
             }
-            output[i] = sigmoid(sum);
+            lastOutput[i] = sigmoid(sum);
         }
 
-        return output;
+        return lastOutput;
     }
 
     std::vector<float> backward(const std::vector<float>& delta, const std::vector<float>& prevActivation, float learningRate) {
-    // delta - ошибка для выходных нейронов этого слоя (после активации)0
         std::vector<float> deltaPrev(weights[0].size(), 0.0f);
 
         for (size_t i = 0; i < weights.size(); ++i) {
-        // Производная сигмоиды для данного нейрона
-            float sigmoid_derivative = output[i] * (1 - output[i]);  // output[i] - активация нейрона (нужно хранить!)
-
+            float sigmoid_derivative = lastOutput[i] * (1 - lastOutput[i]);
             float delta_val = delta[i] * sigmoid_derivative;
 
             for (size_t j = 0; j < weights[i].size(); ++j) {
-            // накопление ошибки для предыдущего слоя
                 deltaPrev[j] += weights[i][j] * delta_val;
-            // обновление веса
                 weights[i][j] -= learningRate * delta_val * prevActivation[j];
             }
-        // обновление bias
+
             biases[i] -= learningRate * delta_val;
         }
         return deltaPrev;
     }
+
     const std::vector<float>& getOutput() const {
         return lastOutput;
     }
-private:
-    std::vector<float> lastInput;
-    std::vector<float> lastOutput;  // активации после sigmoid
 
+private:
     std::vector<std::vector<float>> weights;
     std::vector<float> biases;
+
+    std::vector<float> lastInput;
+    std::vector<float> lastOutput;
 
     static inline float sigmoid(float x) {
         return 1.0f / (1.0f + std::exp(-x));
     }
 };
+
 
 class NeuralNetwork {
 public:
