@@ -42,6 +42,28 @@ public:
         return output;
     }
 
+    std::vector<float> backward(const std::vector<float>& delta, const std::vector<float>& prevActivation, float learningRate) {
+    // delta - ошибка для выходных нейронов этого слоя (после активации)0
+        std::vector<float> deltaPrev(weights[0].size(), 0.0f);
+
+        for (size_t i = 0; i < weights.size(); ++i) {
+        // Производная сигмоиды для данного нейрона
+            float sigmoid_derivative = output[i] * (1 - output[i]);  // output[i] - активация нейрона (нужно хранить!)
+
+            float delta_val = delta[i] * sigmoid_derivative;
+
+            for (size_t j = 0; j < weights[i].size(); ++j) {
+            // накопление ошибки для предыдущего слоя
+                deltaPrev[j] += weights[i][j] * delta_val;
+            // обновление веса
+                weights[i][j] -= learningRate * delta_val * prevActivation[j];
+            }
+        // обновление bias
+            biases[i] -= learningRate * delta_val;
+        }
+        return deltaPrev;
+    }
+
 private:
     std::vector<std::vector<float>> weights;
     std::vector<float> biases;
