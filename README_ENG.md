@@ -1,4 +1,4 @@
-# 🧠 BersbotsAILib
+# BersbotsAILib
 
 **BersbotsAILib** is a simple, self-contained (header-only) utility library in C++17+ for building and training neural networks **without external dependencies**.
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 🚀 Example Usage
+## Example Usage
 
 ```cpp
 #include "BersbotsAILib.hpp"
