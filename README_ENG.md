@@ -88,4 +88,4 @@ MIT — free to use for personal, educational, and research purposes.
 Author Bersbots
 
 Created from scratch with love for C++ and neural networks
-Author: [gBersbot](https://github.com/Bersbot) 
+Author: [Bersbot](https://github.com/Bersbot) 
