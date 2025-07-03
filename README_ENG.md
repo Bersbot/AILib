@@ -70,22 +70,22 @@ Classes & Methods
 
     Stores weights, biases, inputs, and outputs
 
-⚠️ Requirements
+Requirements
 
     C++17 or later
 
     Uses only the standard library — no external dependencies
 
-📁 Installation
+Installation
 
 Just copy the BersbotsAILib.hpp file into your project and include it:
 
 #include "BersbotsAILib.hpp"
 
-📜 License
+License
 
 MIT — free to use for personal, educational, and research purposes.
-✍️ Author
+Author Bersbots
 
 Created from scratch with love for C++ and neural networks
 Author: Bersbots
