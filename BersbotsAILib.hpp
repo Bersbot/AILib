@@ -91,7 +91,6 @@ public:
         return biases;
     }
 
-// Для изменения (не const объекты)
     std::vector<std::vector<float>>& getWeights() {
         return weights;
     }
@@ -124,7 +123,6 @@ public:
         }
     }
 
-    // Прямой проход по всем слоям
     std::vector<float> forward(const std::vector<float>& input) {
         std::vector<float> out = input;
         for (auto& layer : layers) {
@@ -133,14 +131,12 @@ public:
         return out;
     }
 
-    // Заглушка для обучения — пока без реализации
     void train(const std::vector<float>& input, const std::vector<float>& target, float learningRate) {
         if (target.size() != layers.back().getOutput().size()) {
             throw std::invalid_argument("Target size must match output layer size");
         }
 
-        // Прямой проход
-        std::vector<std::vector<float>> activations; // активации всех слоев (включая входной)
+        std::vector<std::vector<float>> activations;
         activations.push_back(input);
         std::vector<float> out = input;
         for (auto& layer : layers) {
@@ -148,13 +144,11 @@ public:
             activations.push_back(out);
         }
 
-        // Вычисляем ошибку выходного слоя
         std::vector<float> delta(out.size());
         for (size_t i = 0; i < out.size(); ++i) {
-            delta[i] = out[i] - target[i]; // градиент ошибки по выходу (MSE)
+            delta[i] = out[i] - target[i];
         }
 
-        // Обратное распространение ошибки
         for (int i = (int)layers.size() - 1; i >= 0; --i) {
             delta = layers[i].backward(delta, activations[i], learningRate);
         }
@@ -172,8 +166,7 @@ public:
         for (int epoch = 0; epoch < epochs; ++epoch) {
             float totalLoss = 0.0f;
             for (const auto& [input, target] : dataset) {
-            // Проверяем, что размер цели совпадает с выходом слоя
-                auto output = forward(input); // делаем форвард заранее
+                auto output = forward(input);
                 if (target.size() != output.size()) {
                     std::cerr << "Error: target size (" << target.size()
                               << ") != output size (" << output.size() << ")\n";
