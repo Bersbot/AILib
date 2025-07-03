@@ -47,3 +47,44 @@ int main() {
 
     return 0;
 }
+
+Classes & Methods
+🔹 class NeuralNetwork
+
+    NeuralNetwork(std::vector<int> layers) — create a new network
+
+    predict(input) — returns network output
+
+    train(input, target, learningRate) — train a single sample
+
+    trainDataset(dataset, epochs, showProgress, learningRate) — train on a full dataset
+
+    saveWeights(filename) / loadWeights(filename) — save or load weights
+
+    resetTrain() — reinitialize all weights and biases
+
+🔹 class Layer
+
+    Represents a single network layer
+
+    Stores weights, biases, inputs, and outputs
+
+⚠️ Requirements
+
+    C++17 or later
+
+    Uses only the standard library — no external dependencies
+
+📁 Installation
+
+Just copy the BersbotsAILib.hpp file into your project and include it:
+
+#include "BersbotsAILib.hpp"
+
+📜 License
+
+MIT — free to use for personal, educational, and research purposes.
+✍️ Author
+
+Created from scratch with love for C++ and neural networks
+Author: Bersbots
