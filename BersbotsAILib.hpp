@@ -1,9 +1,12 @@
 #pragma once
 
+#include <algorithm>
+#include <stdexcept>
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <random>
 #include <cmath>
-#include <stdexcept>
 
 class Layer {
 public:
@@ -59,8 +62,42 @@ public:
         return deltaPrev;
     }
 
+    void initialize() {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+
+        for (auto& neuron_weights : weights) {
+            for (float& w : neuron_weights) {
+                w = dist(gen);
+            }
+        }
+
+        for (float& b : biases) {
+            b = dist(gen);
+        }
+    }
+
+
     const std::vector<float>& getOutput() const {
         return lastOutput;
+    }
+
+    const std::vector<std::vector<float>>& getWeights() const {
+        return weights;
+    }
+
+    const std::vector<float>& getBiases() const {
+        return biases;
+    }
+
+// Для изменения (не const объекты)
+    std::vector<std::vector<float>>& getWeights() {
+        return weights;
+    }
+
+    std::vector<float>& getBiases() {
+        return biases;
     }
 
 private:
@@ -131,17 +168,24 @@ public:
         return sum / output.size();
     }
 
-    void trainDataset(const std::vector<std::pair<std::vector<float>, std::vector<float>>>& dataset, int epochs, float learningRate) {
+    void trainDataset(const std::vector<std::pair<std::vector<float>, std::vector<float>>>& dataset, int epochs, bool showProgres, float learningRate) {
         for (int epoch = 0; epoch < epochs; ++epoch) {
             float totalLoss = 0.0f;
             for (const auto& [input, target] : dataset) {
+            // Проверяем, что размер цели совпадает с выходом слоя
+                auto output = forward(input); // делаем форвард заранее
+                if (target.size() != output.size()) {
+                    std::cerr << "Error: target size (" << target.size()
+                              << ") != output size (" << output.size() << ")\n";
+                    throw std::invalid_argument("Target size does not match output layer size");
+                }
                 train(input, target, learningRate);
-                auto output = forward(input);
                 totalLoss += mse(output, target);
             }
-            std::cout << "Epoch " << epoch << ", loss = " << totalLoss / dataset.size() << std::endl;
+            if (showProgres){std::cout << "Epoch " << epoch << ", loss = " << totalLoss / dataset.size() << std::endl;}
         }
     }
+
 
     std::vector<float> predict(const std::vector<float>& input) {
         return forward(input);
@@ -159,6 +203,64 @@ public:
         return result;
     }
 
+     void saveWeights(const std::string& filename) const {
+        std::ofstream file(filename);
+        if (!file) {
+            throw std::runtime_error("Cannot open file for saving weights");
+        }
+
+        file << layers.size() << "\n";
+        for (const auto& layer : layers) {
+            file << layer.getWeights().size() << " " << layer.getWeights()[0].size() << "\n";
+            for (const auto& neuron_weights : layer.getWeights()) {
+                for (float w : neuron_weights) {
+                    file << w << " ";
+                }
+                file << "\n";
+            }
+            for (float b : layer.getBiases()) {
+                file << b << " ";
+            }
+            file << "\n";
+        }
+    }
+
+    // Загружаем веса и смещения из файла
+    void loadWeights(const std::string& filename) {
+        std::ifstream file(filename);
+        if (!file) {
+            throw std::runtime_error("Cannot open file for loading weights");
+        }
+
+        size_t numLayers = 0;
+        file >> numLayers;
+        if (numLayers != layers.size()) {
+            throw std::runtime_error("Mismatch in number of layers when loading weights");
+        }
+
+        for (auto& layer : layers) {
+            size_t outputSize = 0, inputSize = 0;
+            file >> outputSize >> inputSize;
+            if (outputSize != layer.getWeights().size() || inputSize != layer.getWeights()[0].size()) {
+                throw std::runtime_error("Mismatch in layer sizes when loading weights");
+            }
+
+            for (auto& neuron_weights : layer.getWeights()) {
+                for (float& w : neuron_weights) {
+                    file >> w;
+                }
+            }
+            for (float& b : layer.getBiases()) {
+                file >> b;
+            }
+        }
+    }
+
+    void resetTrain() {
+        for (auto& layer : layers) {
+            layer.initialize();
+        }
+    }
 
 
 
