@@ -47,6 +47,7 @@ int main() {
 
     return 0;
 }
+```
 
 Classes & Methods
 🔹 class NeuralNetwork
