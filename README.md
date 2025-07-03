@@ -85,7 +85,11 @@ Just copy the BersbotsAILib.hpp file into your project and include it:
 License
 
 MIT — free to use for personal, educational, and research purposes.
-Author Bersbots
 
 Created from scratch with love for C++ and neural networks
 Author: [Bersbot](https://github.com/Bersbot) 
+
+
+I understand that this library will not be particularly useful for programmers, since there are more advanced analogs. In extreme cases, you can generate the same using ChatGPT or DeepSeek.
+However, I made it for educational purposes. I also want to assemble a team of programmers to work on my projects and will try to write most of the libraries that I will use myself.
+I am only at the beginning of my journey - I am still 13 years old.
