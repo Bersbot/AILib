@@ -1,17 +1,44 @@
-#include "NeuralNetwork.hpp"
+#include "BersbotsAILib.hpp" // Твой заголовочный файл
 #include <iostream>
 
 int main() {
-    // Создаём сеть с 3 входами, одним скрытым слоем из 5 нейронов и 2 выходами
-    NeuralNetwork net({3, 5, 2});
+    // Создаём нейросеть с 2 входами, 1 скрытым слоем из 3 нейронов и 1 выходом
+    NeuralNetwork net({2, 3, 1});
 
-    std::vector<float> input = {1.0f, 0.5f, -1.2f};
-    std::vector<float> output = net.forward(input);
+    // Обучающий датасет: входы и целевые выходы для XOR
+    std::vector<std::pair<std::vector<float>, std::vector<float>>> dataset = {
+        { {0, 0}, {0} },
+        { {0, 1}, {1} },
+        { {1, 0}, {1} },
+        { {1, 1}, {0} }
+    };
 
-    for (float v : output) {
-        std::cout << v << " ";
+    // Обучаем нейросеть
+    net.trainDataset(dataset, 10000, 0, 0.1f);
+
+
+    // Тестируем сеть
+    std::cout << "Testing after training:\n";
+    for (const auto& [input, target] : dataset) {
+        auto output = net.predict(input);
+        std::cout << input[0] << " XOR " << input[1]
+                  << " = " << output[0] << " (expected " << target[0] << ")\n";
     }
-    std::cout << std::endl;
+
+    net.resetTrain();
+    
+    std::cout << "\n\n";
+
+    net.trainDataset(dataset, 10, 0, 0.1f);
+
+
+    // Тестируем сеть
+    std::cout << "Testing after training:\n";
+    for (const auto& [input, target] : dataset) {
+        auto output = net.predict(input);
+        std::cout << input[0] << " XOR " << input[1]
+                  << " = " << output[0] << " (expected " << target[0] << ")\n";
+    }
 
     return 0;
 }
